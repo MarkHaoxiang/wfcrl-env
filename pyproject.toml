@@ -1,40 +1,55 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.packages.find]
-include = ['wfcrl*']
-
-[tool.setuptools.package-data]
-'wfcrl.simulators' = ["*", "**/*"]
-'wfcrl.scripts' = ["*.sh"]
-
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
-
-[project.scripts]
-wfcrl-simulator = "wfcrl.scripts:install_simulator"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "WFCRL"
 version = "0.0.1"
-authors = [
-  { name="Inria - IFP Energies Nouvelles", email="claire.bizon-monroc@inria.fr" },
-]
-dynamic = ["dependencies"]
 description = "Interfacing and benchmark Reinforcement Learning tools for Wind Farm Control"
 readme = "README.md"
 requires-python = ">=3.11"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: Windows",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
+license = {text = "Apache-2.0"}
+authors = [
+  {name = "Inria - IFP Energies Nouvelles", email = "claire.bizon-monroc@inria.fr"}
 ]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research"
+]
+
+dependencies = [
+  "gymnasium",
+  "mpi4py>=3.1.5",
+  "numpy>=1.26.4",
+  "pandas==2.2.*",
+  "pettingzoo==1.24.3",
+  "PyYAML==6.0.1",
+  "FLORIS==3.5",
+  "openfast_toolbox @ git+https://github.com/cibeah/openfast_toolbox"
+]
+
+[project.scripts]
+wfcrl-simulator = "wfcrl.scripts:install_simulator"
 
 [project.urls]
 Issues = "https://github.com/cibeah/WFCRL/issues"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build]
+include = [
+  "wfcrl/**/*",
+  "requirements.txt",
+  "README.md"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["wfcrl"]
+
+[tool.hatch.build.force-include]
+# Package data inclusion
+"wfcrl/simulators" = "wfcrl/simulators"
+"wfcrl/scripts/make_ff.sh" = "wfcrl/scripts"
