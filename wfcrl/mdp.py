@@ -12,7 +12,8 @@ from wfcrl.interface import BaseInterface, MPI_Interface
 
 def clip_to_dict_space(element: dict, space: spaces.Dict):
     for name, value in element.items():
-        element[name] = np.clip(value, space[name].low, space[name].high)
+        if name in space:
+            element[name] = np.clip(value, space[name].low, space[name].high)
     return element
 
 
@@ -34,6 +35,9 @@ class WindFarmMDP:
     """
 
     CONTROL_SET = ["yaw", "pitch", "torque"]
+
+    IGNORE_GLOBAL_ATTRIBUTES = ["freewind_measurements", "layout"]
+
     POSSIBLE_STATE_ATTRIBUTES = [
         "freewind_measurements",
         "wind_speed",
@@ -140,9 +144,7 @@ class WindFarmMDP:
                 low = bound_array * self.DEFAULT_BOUNDS[attr][0]
                 high = bound_array * self.DEFAULT_BOUNDS[attr][1]
             state_space_dict[attr] = spaces.Box(
-                low,
-                high,
-                shape=low.shape,
+                low, high, shape=low.shape, dtype=np.float64
             )
         self.state_space = spaces.Dict(state_space_dict)
         self.start_state = None
@@ -216,7 +218,7 @@ class WindFarmMDP:
                     f"State attribute {attr} must be a numpy array."
                     f"Received {type(value)}"
                 )
-            if attr != "freewind_measurements" and not (
+            if attr not in self.IGNORE_GLOBAL_ATTRIBUTES and not (
                 value.shape == (self.num_turbines,)
             ):
                 raise TypeError(

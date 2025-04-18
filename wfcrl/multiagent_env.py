@@ -75,7 +75,7 @@ class MAWindFarmEnv(AECEnv):
             self._obs_spaces[agent] = {
                 key: spaces.Box(space.low[i], space.high[i])
                 for key, space in self.mdp.state_space.items()
-                if key != "freewind_measurements"
+                if key not in WindFarmMDP.IGNORE_GLOBAL_ATTRIBUTES
             }
             if self.continuous_control:
                 self._action_spaces[agent] = {
@@ -107,9 +107,10 @@ class MAWindFarmEnv(AECEnv):
         """
         global_state = self.state()
         agent_state = OrderedDict()
-        ignore_registry = ["freewind_measurements", "layout"]
+        # no freewind in local states !
+        # agent_state["freewind_measurements"] = global_state["freewind_measurements"]
         for key, partial_state in global_state.items():
-            if key not in ignore_registry:
+            if key not in WindFarmMDP.IGNORE_GLOBAL_ATTRIBUTES:
                 agent_state[key] = partial_state[self.agent_name_mapping[agent]]
         return agent_state
 
