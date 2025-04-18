@@ -27,7 +27,7 @@ class MAWindFarmEnv(AECEnv):
         reward_shaper: RewardShaper = DoNothingReward(),
         start_iter: int = 0,
         max_num_steps: int = 500,
-        load_coef: float = 0.1
+        load_coef: float = 0.1,
     ):
         self.mdp = WindFarmMDP(
             interface=interface,
@@ -107,10 +107,9 @@ class MAWindFarmEnv(AECEnv):
         """
         global_state = self.state()
         agent_state = OrderedDict()
-        # no freewind in local states !
-        # agent_state["freewind_measurements"] = global_state["freewind_measurements"]
+        ignore_registry = ["freewind_measurements", "layout"]
         for key, partial_state in global_state.items():
-            if key != "freewind_measurements":
+            if key not in ignore_registry:
                 agent_state[key] = partial_state[self.agent_name_mapping[agent]]
         return agent_state
 
