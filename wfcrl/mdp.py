@@ -36,7 +36,8 @@ class WindFarmMDP:
 
     CONTROL_SET = ["yaw", "pitch", "torque"]
 
-    IGNORE_GLOBAL_ATTRIBUTES = ["freewind_measurements", "layout"]
+    # IGNORE_GLOBAL_ATTRIBUTES = ["freewind_measurements", "layout"]
+    IGNORE_GLOBAL_ATTRIBUTES = ["freewind_measurements"]
 
     POSSIBLE_STATE_ATTRIBUTES = [
         "freewind_measurements",
