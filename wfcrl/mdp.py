@@ -48,7 +48,7 @@ class WindFarmMDP:
         "torque",
     ]
     DEFAULT_BOUNDS = {
-        "wind_speed": [3, 28],
+        "wind_speed": [0, 28],
         "wind_direction": [0, 360],
         "yaw": [-40, 40],
         "pitch": [0, 360],
