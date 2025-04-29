@@ -1,8 +1,8 @@
 import platform
-import time
 import warnings
 from abc import ABC
 from typing import Dict, Iterable, List, Union
+import uuid
 
 import numpy as np
 import pandas as pd
@@ -276,7 +276,9 @@ class MPI_Interface(BaseInterface):
     def get_measure(self, measure: str) -> np.ndarray:
         if measure == "freewind_measurements":
             return np.atleast_1d(self.last_wind().squeeze())
-        return np.atleast_1d(self.current_measures[:, self.measure_map[measure]].squeeze())
+        return np.atleast_1d(
+            self.current_measures[:, self.measure_map[measure]].squeeze()
+        )
 
     def get_all_measures(self) -> Dict:
         df = pd.DataFrame(self.current_measures, columns=self.measure_names)
@@ -396,7 +398,8 @@ class FastFarmInterface(MPI_Interface):
     ):
         if output_dir is None:
             name = f"{case.simulator}__{case.t_init + case.max_iter * case.dt}s"
-            name += f"__{case.num_turbines}T_{time.time()}"
+            name += f"__{case.num_turbines}"
+            name += f"__{uuid.uuid4()}"
             output_dir = f"__simul__/fastfarm/{name}/"
 
         fstf_file = create_ff_case(
@@ -469,6 +472,7 @@ class FlorisInterface(BaseInterface):
         """
         super().__init__()
 
+        self.simul_file = simul_file
         self.num_turbines = num_turbines
         self.fi = tools.FlorisInterface(simul_file)
         self.measure_map = self.DEFAULT_MEASURE_MAP
@@ -526,7 +530,8 @@ class FlorisInterface(BaseInterface):
     ):
         if output_dir is None:
             name = f"{case.simulator}__{case.t_init + case.max_iter * case.dt}s"
-            name += f"__{case.num_turbines}T_{time.time()}"
+            name += f"__{case.num_turbines}"
+            name += f"__{uuid.uuid4()}"
             output_dir = f"__simul__/floris/{name}/"
 
         simul_file = create_floris_case(case.dict(), output_dir=output_dir)
@@ -556,9 +561,9 @@ class FlorisInterface(BaseInterface):
             self._current_yaw_command[0, 0, :] = yaw.astype(np.double)
         self.update_wind(*next(self.wind_generator))
         self.fi.calculate_wake(yaw_angles=self._current_yaw_command)
-        self.current_measures[
-            :, self.measure_map["yaw"]
-        ] = self.fi.floris.farm.yaw_angles
+        self.current_measures[:, self.measure_map["yaw"]] = (
+            self.fi.floris.farm.yaw_angles
+        )
         wind_measures_indices = [
             self.measure_map["wind_speed"],
             self.measure_map["wind_direction"],
@@ -659,5 +664,7 @@ class FlorisInterface(BaseInterface):
         if wind_speed != self.wind_speed or wind_direction != self.wind_dir:
             self.fi.reinitialize(
                 wind_speeds=[wind_speed] if wind_speed is not None else None,
-                wind_directions=[wind_direction] if wind_direction is not None else None,
+                wind_directions=[wind_direction]
+                if wind_direction is not None
+                else None,
             )
