@@ -4,7 +4,7 @@ from collections import OrderedDict
 import numpy as np
 from gymnasium import spaces
 from pettingzoo import AECEnv
-from pettingzoo.utils import agent_selector
+from pettingzoo.utils import AgentSelector
 
 from wfcrl.environments import FarmCase
 from wfcrl.interface import BaseInterface
@@ -153,7 +153,7 @@ class MAWindFarmEnv(AECEnv):
         """
         Init agent selector
         """
-        self._agent_selector = agent_selector(self.agents)
+        self._agent_selector = AgentSelector(self.agents)
         self.agent_selection = self._agent_selector.next()
 
     def step(self, action):
